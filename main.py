@@ -39,17 +39,6 @@ try:
     pm = Pymem("ac_client.exe")
     game_module = module_from_name(pm.process_handle, "ac_client.exe").lpBaseOfDll
 
-    ammo = int(get_sig(
-                        'ac_client.exe',
-                        b'\xFF\x0E\x57\x8B\x7C\x24.\x8D\x74\x24.\xE8....\x5F\x5E\xB0.\x5B\x8B\xE5\x5D\xC2..\xCC\xCC\xCC\xCC\xCC\xCC\xCC\xCC\xCC\xCC\xCC\xCC\x55',
-                        ), 0)
-
-    def unlim_ammo_off():
-        pm.write_bytes(ammo, b"\xFF\x0E", 2)
-
-    def unlim_ammo_on():
-        pm.write_bytes(ammo, b"\x90\x90", 2)
-
 except pymem.exception.ProcessNotFound:
     print('Could not find process "ac_client.exe"')
     os.system('pause')
@@ -60,13 +49,27 @@ except pymem.exception.MemoryWriteError:
     os.system('pause')
     sys.exit()
 
-lbl_money = Label(window, text="Unlimited ammo", font=("Arial Bold", 16))
-lbl_money.grid(column=0, row=0)
+ammo = int(get_sig(
+                    'ac_client.exe',
+                    b'\xFF\x0E\x57\x8B\x7C\x24.\x8D\x74\x24.\xE8....\x5F\x5E\xB0.\x5B\x8B\xE5\x5D\xC2..\xCC\xCC\xCC\xCC\xCC\xCC\xCC\xCC\xCC\xCC\xCC\xCC\x55',
+                    ), 0)
 
-btn_add_money = Button(window, text="выкл", command=unlim_ammo_off, font=("Arial Bold", 16))
-btn_add_money.grid(column=2, row=0)
+def unlimited_ammo_button():
+    global unlimited_ammo
 
-btn_sub_money = Button(window, text="вкл", command=unlim_ammo_on, font=("Arial Bold", 16))
-btn_sub_money.grid(column=3, row=0)
+    if unlimited_ammo:
+        pm.write_bytes(ammo, b"\xFF\x0E", 2)
+        btn.configure(text="Выкл")
+        unlimited_ammo = False
+    else:
+        pm.write_bytes(ammo, b"\x90\x90", 2)
+        btn.configure(text="Вкл")
+        unlimited_ammo = True
+
+lbl = Label(window, text="Unlimited ammo:", font=("Arial Bold", 16))
+lbl.grid(column=0, row=0)
+
+btn = Button(window, text="Выкл", command=unlimited_ammo_button, font=("Arial Bold", 16))
+btn.grid(column=3, row=0)
 
 window.mainloop()

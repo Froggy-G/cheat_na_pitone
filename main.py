@@ -9,8 +9,7 @@ window = Tk()
 window.title("cheat")
 window.geometry('640x480')
 
-unlimited_ammo_rifle = False
-unlimited_ammo_shotgun = False
+unlimited_ammo = False
 
 # USAGE EXAMPLE
 # while True:
@@ -45,68 +44,44 @@ except pymem.exception.ProcessNotFound:
     os.system('pause')
     sys.exit()
 
-def unlimited_ammo_rifle_button():
-    global unlimited_ammo_rifle
+def unlimited_ammo_button():
+    global unlimited_ammo
 
     try:
-        ammo = int(get_sig(
-                            'GameAssembly.dll',
-                            b'\x0f\x11\x43.\x8b\x40.\x89\x43.\x48\x8b\x15....\xe8....\x48\x8b\x97',
-                            ), 0)
-        unlimited_ammo_rifle = False
+        ammo_rifle = int(get_sig('GameAssembly.dll',
+                                    b'\x0f\x11\x43.\x8b\x40.\x89\x43.\x48\x8b\x15....\xe8....\x48\x8b\x97',
+                                    ), 0)
+        
+        ammo_shotgun = int(get_sig('GameAssembly.dll',
+                                    b'\x0f\x11\x43.\x8b\x40.\x89\x43.\x80\x7f',
+                                    ), 0)
+        unlimited_ammo = False
 
     except AttributeError:
-        ammo = int(get_sig(
-                            'GameAssembly.dll',
-                            b'\x90\x90\x90\x90\x8b\x40.\x89\x43.\x48\x8b\x15....\xe8....\x48\x8b\x97',
-                            ), 0)
-        unlimited_ammo_rifle = True
+        ammo_rifle = int(get_sig('GameAssembly.dll',
+                                    b'\x90\x90\x90\x90\x8b\x40.\x89\x43.\x48\x8b\x15....\xe8....\x48\x8b\x97',
+                                    ), 0)
 
-    if unlimited_ammo_rifle:
-        pm.write_bytes(ammo, b"\x0F\x11\x43\x68", 4)
-        button_ammo_rifle.configure(text="[Выкл]")
-        unlimited_ammo_rifle = False
+        ammo_shotgun = int(get_sig('GameAssembly.dll',
+                                    b'\x90\x90\x90\x90\x8b\x40.\x89\x43.\x80\x7f',
+                                    ), 0)
+        unlimited_ammo = True
+
+    if unlimited_ammo:
+        pm.write_bytes(ammo_rifle, b"\x0F\x11\x43\x68", 4)
+        pm.write_bytes(ammo_shotgun, b"\x0F\x11\x43\x4C", 4)
+        button_ammo.configure(text="[Выкл]")
+        unlimited_ammo = False
     else:
-        pm.write_bytes(ammo, b"\x90\x90\x90\x90", 4)
-        button_ammo_rifle.configure(text="[Вкл]")
-        unlimited_ammo_rifle = True
+        pm.write_bytes(ammo_rifle, b"\x90\x90\x90\x90", 4)
+        pm.write_bytes(ammo_shotgun, b"\x90\x90\x90\x90", 4)
+        button_ammo.configure(text="[Вкл]")
+        unlimited_ammo = True
 
-def unlimited_ammo_shotgun_button():
-    global unlimited_ammo_shotgun
+label_ammo = Label(window, text="Unlimited ammo:", font=("Arial Bold", 16))
+label_ammo.grid(column=0, row=0)
 
-    try:
-        ammo = int(get_sig(
-                            'GameAssembly.dll',
-                            b'\x0f\x11\x43.\x8b\x40.\x89\x43.\x80\x7f',
-                            ), 0)
-        unlimited_ammo_shotgun = False
-
-    except AttributeError:
-        ammo = int(get_sig(
-                            'GameAssembly.dll',
-                            b'\x90\x90\x90\x90\x8b\x40.\x89\x43.\x80\x7f',
-                            ), 0)
-        unlimited_ammo_shotgun = True
-
-    if unlimited_ammo_shotgun:
-        pm.write_bytes(ammo, b"\x0F\x11\x43\x4C", 4)
-        button_ammo_shotgun.configure(text="[Выкл]")
-        unlimited_ammo_shotgun = False
-    else:
-        pm.write_bytes(ammo, b"\x90\x90\x90\x90", 4)
-        button_ammo_shotgun.configure(text="[Вкл]")
-        unlimited_ammo_shotgun = True
-
-label_ammo_rifle = Label(window, text="Unlimited rifle ammo:", font=("Arial Bold", 16))
-label_ammo_rifle.grid(column=0, row=0)
-
-button_ammo_rifle = Button(window, text="[Выкл]", command=unlimited_ammo_rifle_button, font=("Arial Bold", 16))
-button_ammo_rifle.grid(column=1, row=0)
-
-label_ammo_shotgun = Label(window, text="Unlimited shotgun ammo:", font=("Arial Bold", 16))
-label_ammo_shotgun.grid(column=0, row=1)
-
-button_ammo_shotgun = Button(window, text="[Выкл]", command=unlimited_ammo_shotgun_button, font=("Arial Bold", 16))
-button_ammo_shotgun.grid(column=1, row=1)
+button_ammo = Button(window, text="[Выкл]", command=unlimited_ammo_button, font=("Arial Bold", 16))
+button_ammo.grid(column=1, row=0)
 
 window.mainloop()

@@ -49,13 +49,22 @@ except pymem.exception.MemoryWriteError:
     os.system('pause')
     sys.exit()
 
-ammo = int(get_sig(
-                    'GameAssembly.dll',
-                    b'\x0f\x11\x43.\x8b\x40.\x89\x43.\x48\x8b\x15....\xe8....\x48\x8b\x97',
-                    ), 0)
-
 def unlimited_ammo_rifle_button():
     global unlimited_ammo_rifle
+
+    try:
+        ammo = int(get_sig(
+                            'GameAssembly.dll',
+                            b'\x0f\x11\x43.\x8b\x40.\x89\x43.\x48\x8b\x15....\xe8....\x48\x8b\x97',
+                            ), 0)
+        unlimited_ammo_rifle = False
+        
+    except AttributeError:
+        ammo = int(get_sig(
+                            'GameAssembly.dll',
+                            b'\x90\x90\x90\x90\x8b\x40.\x89\x43.\x48\x8b\x15....\xe8....\x48\x8b\x97',
+                            ), 0)
+        unlimited_ammo_rifle = True
 
     if unlimited_ammo_rifle:
         pm.write_bytes(ammo, b"\x0F\x11\x43\x68", 4)

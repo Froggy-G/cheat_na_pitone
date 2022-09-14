@@ -36,40 +36,40 @@ def get_sig(modname, pattern):
     return "0x{:X}".format(relative)
 
 try:
-    pm = Pymem("ac_client.exe")
-    game_module = module_from_name(pm.process_handle, "ac_client.exe").lpBaseOfDll
+    pm = Pymem("Slendytubbies 3 Multiplayer.exe")
+    game_module = module_from_name(pm.process_handle, "GameAssembly.dll").lpBaseOfDll
 
 except pymem.exception.ProcessNotFound:
-    print('Could not find process "ac_client.exe"')
+    print('Could not find process')
     os.system('pause')
     sys.exit()
 
 except pymem.exception.MemoryWriteError:
-    print('Process "ac_client.exe" has been closed')
+    print('Process has been closed')
     os.system('pause')
     sys.exit()
 
 ammo = int(get_sig(
-                    'ac_client.exe',
-                    b'\xFF\x0E\x57\x8B\x7C\x24.\x8D\x74\x24.\xE8....\x5F\x5E\xB0.\x5B\x8B\xE5\x5D\xC2..\xCC\xCC\xCC\xCC\xCC\xCC\xCC\xCC\xCC\xCC\xCC\xCC\x55',
+                    'GameAssembly.dll',
+                    b'\x0f\x11\x43.\x8b\x40.\x89\x43.\x48\x8b\x15....\xe8....\x48\x8b\x97',
                     ), 0)
 
 def unlimited_ammo_button():
     global unlimited_ammo
 
     if unlimited_ammo:
-        pm.write_bytes(ammo, b"\xFF\x0E", 2)
-        btn.configure(text="Выкл")
+        pm.write_bytes(ammo, b"\x0F\x11\x43\x68", 4)
+        button_ammo.configure(text="[Выкл]")
         unlimited_ammo = False
     else:
-        pm.write_bytes(ammo, b"\x90\x90", 2)
-        btn.configure(text="Вкл")
+        pm.write_bytes(ammo, b"\x90\x90\x90\x90", 4)
+        button_ammo.configure(text="[Вкл]")
         unlimited_ammo = True
 
 lbl = Label(window, text="Unlimited ammo:", font=("Arial Bold", 16))
 lbl.grid(column=0, row=0)
 
-btn = Button(window, text="Выкл", command=unlimited_ammo_button, font=("Arial Bold", 16))
-btn.grid(column=3, row=0)
+button_ammo = Checkbutton(window, text="[Выкл]", command=unlimited_ammo_button, font=("Arial Bold", 16))
+button_ammo.grid(column=3, row=0)
 
 window.mainloop()

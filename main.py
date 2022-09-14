@@ -55,6 +55,10 @@ def unlimited_ammo_button():
         ammo_shotgun = int(get_sig('GameAssembly.dll',
                                     b'\x0f\x11\x43.\x8b\x40.\x89\x43.\x80\x7f',
                                     ), 0)
+
+        ammo_rpg = int(get_sig('GameAssembly.dll',
+                                    b'\xff\x48.\x48\x8b\xcf',
+                                    ), 0)
         unlimited_ammo = False
 
     except AttributeError:
@@ -65,16 +69,22 @@ def unlimited_ammo_button():
         ammo_shotgun = int(get_sig('GameAssembly.dll',
                                     b'\x90\x90\x90\x90\x8b\x40.\x89\x43.\x80\x7f',
                                     ), 0)
+        
+        ammo_rpg = int(get_sig('GameAssembly.dll',
+                                    b'\x90\x90\x90\x48\x8b\xcf',
+                                    ), 0)
         unlimited_ammo = True
 
     if unlimited_ammo:
         pm.write_bytes(ammo_rifle, b"\x0F\x11\x43\x68", 4)
         pm.write_bytes(ammo_shotgun, b"\x0F\x11\x43\x4C", 4)
+        pm.write_bytes(ammo_rpg, b"\xFF\x48\x38", 3)
         button_ammo.configure(text="[Выкл]")
         unlimited_ammo = False
     else:
         pm.write_bytes(ammo_rifle, b"\x90\x90\x90\x90", 4)
         pm.write_bytes(ammo_shotgun, b"\x90\x90\x90\x90", 4)
+        pm.write_bytes(ammo_rpg, b"\x90\x90\x90", 3)
         button_ammo.configure(text="[Вкл]")
         unlimited_ammo = True
 

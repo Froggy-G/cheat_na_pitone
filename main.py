@@ -10,6 +10,7 @@ window.title("cheat")
 window.geometry('640x480')
 
 unlimited_ammo_rifle = False
+unlimited_ammo_shotgun = False
 
 # USAGE EXAMPLE
 # while True:
@@ -70,10 +71,42 @@ def unlimited_ammo_rifle_button():
         button_ammo_rifle.configure(text="[Вкл]")
         unlimited_ammo_rifle = True
 
-lbl = Label(window, text="Unlimited rifle ammo:", font=("Arial Bold", 16))
-lbl.grid(column=0, row=0)
+def unlimited_ammo_shotgun_button():
+    global unlimited_ammo_shotgun
 
-button_ammo_rifle = Checkbutton(window, text="[Выкл]", command=unlimited_ammo_rifle_button, font=("Arial Bold", 16))
-button_ammo_rifle.grid(column=3, row=0)
+    try:
+        ammo = int(get_sig(
+                            'GameAssembly.dll',
+                            b'\x0f\x11\x43.\x8b\x40.\x89\x43.\x80\x7f',
+                            ), 0)
+        unlimited_ammo_shotgun = False
+
+    except AttributeError:
+        ammo = int(get_sig(
+                            'GameAssembly.dll',
+                            b'\x90\x90\x90\x90\x8b\x40.\x89\x43.\x80\x7f',
+                            ), 0)
+        unlimited_ammo_shotgun = True
+
+    if unlimited_ammo_shotgun:
+        pm.write_bytes(ammo, b"\x0F\x11\x43\x4C", 4)
+        button_ammo_shotgun.configure(text="[Выкл]")
+        unlimited_ammo_shotgun = False
+    else:
+        pm.write_bytes(ammo, b"\x90\x90\x90\x90", 4)
+        button_ammo_shotgun.configure(text="[Вкл]")
+        unlimited_ammo_shotgun = True
+
+label_ammo_rifle = Label(window, text="Unlimited rifle ammo:", font=("Arial Bold", 16))
+label_ammo_rifle.grid(column=0, row=0)
+
+button_ammo_rifle = Button(window, text="[Выкл]", command=unlimited_ammo_rifle_button, font=("Arial Bold", 16))
+button_ammo_rifle.grid(column=1, row=0)
+
+label_ammo_shotgun = Label(window, text="Unlimited shotgun ammo:", font=("Arial Bold", 16))
+label_ammo_shotgun.grid(column=0, row=1)
+
+button_ammo_shotgun = Button(window, text="[Выкл]", command=unlimited_ammo_shotgun_button, font=("Arial Bold", 16))
+button_ammo_shotgun.grid(column=1, row=1)
 
 window.mainloop()

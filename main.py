@@ -9,7 +9,7 @@ window = Tk()
 window.title("cheat")
 window.geometry('640x480')
 
-unlimited_ammo = False
+unlimited_ammo_rifle = False
 
 # USAGE EXAMPLE
 # while True:
@@ -54,22 +54,22 @@ ammo = int(get_sig(
                     b'\x0f\x11\x43.\x8b\x40.\x89\x43.\x48\x8b\x15....\xe8....\x48\x8b\x97',
                     ), 0)
 
-def unlimited_ammo_button():
-    global unlimited_ammo
+def unlimited_ammo_rifle_button():
+    global unlimited_ammo_rifle
 
-    if unlimited_ammo:
+    if unlimited_ammo_rifle:
         pm.write_bytes(ammo, b"\x0F\x11\x43\x68", 4)
-        button_ammo.configure(text="[Выкл]")
-        unlimited_ammo = False
+        button_ammo_rifle.configure(text="[Выкл]")
+        unlimited_ammo_rifle = False
     else:
         pm.write_bytes(ammo, b"\x90\x90\x90\x90", 4)
-        button_ammo.configure(text="[Вкл]")
-        unlimited_ammo = True
+        button_ammo_rifle.configure(text="[Вкл]")
+        unlimited_ammo_rifle = True
 
-lbl = Label(window, text="Unlimited ammo:", font=("Arial Bold", 16))
+lbl = Label(window, text="Unlimited rifle ammo:", font=("Arial Bold", 16))
 lbl.grid(column=0, row=0)
 
-button_ammo = Checkbutton(window, text="[Выкл]", command=unlimited_ammo_button, font=("Arial Bold", 16))
-button_ammo.grid(column=3, row=0)
+button_ammo_rifle = Checkbutton(window, text="[Выкл]", command=unlimited_ammo_rifle_button, font=("Arial Bold", 16))
+button_ammo_rifle.grid(column=3, row=0)
 
 window.mainloop()
